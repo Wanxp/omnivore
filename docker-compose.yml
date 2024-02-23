@@ -1,21 +1,5 @@
 version: '3'
 services:
-  postgres:
-    image: "ankane/pgvector:v0.5.1"
-    container_name: "omnivore-postgres"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=omnivore
-      - PG_POOL_MAX=20
-    healthcheck:
-      test: "exit 0"
-      interval: 2s
-      timeout: 12s
-      retries: 3
-    expose:
-      - 5432
-
   migrate:
     build:
       context: .
@@ -23,10 +7,10 @@ services:
     container_name: "omnivore-migrate"
     command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
     environment:
-      - PGPASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - PG_HOST=postgres
-      - PG_PASSWORD=app_pass
+      - PGPASSWORD=$PGPASSWORD
+      - POSTGRES_USER=$POSTGRES_USER
+      - PG_HOST=$PG_HOST
+      - PG_PASSWORD=$PG_PASSWORD
       - PG_DB=omnivore
     depends_on:
       postgres:
@@ -45,18 +29,18 @@ services:
       timeout: 90s
     environment:
       - API_ENV=local
-      - PG_HOST=postgres
-      - PG_USER=app_user
-      - PG_PASSWORD=app_pass
+      - PG_HOST=$PG_HOST
+      - PG_USER=$POSTGRES_USER
+      - PG_PASSWORD=$PG_PASSWORD
       - PG_DB=omnivore
-      - PG_PORT=5432
+      - PG_PORT=$PG_PORT
       - PG_POOL_MAX=20
       - JAEGER_HOST=jaeger
       - IMAGE_PROXY_SECRET=some-secret
-      - JWT_SECRET=some_secret
-      - SSO_JWT_SECRET=some_sso_secret
+      - JWT_SECRET=$JWT_SECRET
+      - SSO_JWT_SECRET=$SSO_JWT_SECRET
       - CLIENT_URL=http://localhost:3000
-      - GATEWAY_URL=http://localhost:8080/api
+      - GATEWAY_URL=https://localhost:8080/api
       - CONTENT_FETCH_URL=http://content-fetch:8080/?token=some_token
     depends_on:
       migrate:
